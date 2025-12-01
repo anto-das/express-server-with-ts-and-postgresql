@@ -50,6 +50,7 @@ app.get("/", (req: Request, res: Response) => {
   res.send("Hello World!");
 });
 
+// users apis
 app.post("/users", async (req: Request, res: Response) => {
     const {name,email} = req.body;
   try {
@@ -60,6 +61,96 @@ app.post("/users", async (req: Request, res: Response) => {
     .send({success:false,message:err.message})
   }
 });
+
+app.get("/users", async(req:Request,res:Response) =>{
+  try {
+    const result = await pool.query(`SELECT * FROM users`);
+    res.status(200).send({
+      success:true,
+      message:"get users successfully",
+      data:result.rows
+    })
+  } catch (err:any) {
+    res.status(500).send({
+      success:false,
+      message:err.message
+    })
+  }
+})
+
+app.delete("/users/:id", async(req:Request,res:Response) =>{
+  try {
+    const id = req.params.id;
+    const result = await pool.query(`DELETE FROM users WHERE id=$1`,[id])
+    if(result.rowCount ===0){
+      res.status(404).send({
+        success:false,
+        message:"user not found"
+      })
+    } else{
+      res.status(200).send({
+        success:true,
+        message:"user deleted successfully",
+        data:result.rows
+      })
+    }
+  } catch (err:any) {
+    res.status(500).send({
+      success:false,
+      message:err.message
+    })
+  }
+})
+
+app.get("/users/:id", async(req:Request,res:Response) =>{
+  try {
+    const id = req.params.id;
+  const result = await pool.query(`SELECT * FROM users WHERE id = $1`,[id]);
+
+  if(result.rows.length === 0){
+      res.status(404).send({
+      success:false,
+      message:"user not found",
+    })
+  }else{
+    res.status(200).send({
+    success:true,
+    message:"users found successfully",
+    data:result.rows[0]
+  })
+  }
+  } catch (err) {
+    res.status(500).send({
+      success:false,
+      message:"user not found",
+    })
+  }
+})
+
+app.put("/users/:id", async(req:Request,res:Response) =>{
+  try {
+    const id = req.params.id;
+    const {name,email} = req.body;
+    const result = await pool.query(`UPDATE users SET name=$1,email=$2 WHERE id=$3 RETURNING *`,[name,email,id]);
+    if(result.rows.length === 0){
+      res.status(404).send({
+        success:false,
+        message:"user not found"
+      })
+    }else{
+      res.status(200).send({
+      success:true,
+      message:"user updated successfully",
+      data:result.rows[0]
+    })
+    }
+  } catch (err:any) {
+    res.status(500).send({
+      success:true,
+      message:err.message
+    })
+  }
+})
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
