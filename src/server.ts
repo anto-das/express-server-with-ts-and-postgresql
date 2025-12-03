@@ -1,8 +1,8 @@
-import express, { NextFunction, Request, Response } from "express";
-import { Pool } from "pg";
+import express, { Request, Response } from "express";
+
 import { config } from "./config";
 import initDB, { pool } from "./config/db";
-import logger from "./middleware/logger";
+
 import { userRouter } from "./modules/users/user.routes";
 import { todoRouter } from "./modules/todo/todo.routes";
 import { authRouter } from "./modules/auth/auth.routes";

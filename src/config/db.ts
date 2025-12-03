@@ -4,6 +4,7 @@ import { config } from ".";
 //Database
 export const pool = new Pool({
   connectionString: `${config.db_connection_url}`,
+  ssl: { rejectUnauthorized: false },
 });
 
 //init DB
