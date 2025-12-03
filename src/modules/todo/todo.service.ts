@@ -1,19 +1,44 @@
 import { pool } from "../../config/db";
 
-const createTodo = async (user_id:string,title:string) =>{
-    const result =await pool.query(
-      `INSERT INTO todos(user_id,title) VALUES($1,$2) RETURNING *`,
-      [user_id, title]
-    );
-    return result;
-}
+const createTodo = async (payload: Record<string, unknown>) => {
+  const { user_id, title } = payload;
+  const result = await pool.query(
+    `INSERT INTO todos(user_id,title) VALUES($1,$2) RETURNING *`,
+    [user_id, title]
+  );
+  return result;
+};
 
-const getTodos = async() =>{
-    const result =await pool.query(`SELECT * FROM todos`);
-    return result;
-}
+const getTodos = async () => {
+  const result = await pool.query(`SELECT * FROM todos`);
+  return result;
+};
 
-export const todoService ={
-    createTodo,
-    getTodos,
-}
+const getSingleTodo = async (id: string) => {
+  const result = await pool.query(`SELECT * FROM todos WHERE id = $1`, [id]);
+  return result;
+};
+
+const updateUser = async (title: string, id: string) => {
+  const result = await pool.query(
+    `UPDATE todos SET title=$1 WHERE id=$2 RETURNING *`,
+    [title, id]
+  );
+  return result;
+};
+
+const deleteUser = async (id: string) => {
+  const result = await pool.query(
+    `DELETE FROM todos WHERE id = $1 RETURNING *`,
+    [id]
+  );
+  return result;
+};
+
+export const todoService = {
+  createTodo,
+  getTodos,
+  getSingleTodo,
+  updateUser,
+  deleteUser,
+};
